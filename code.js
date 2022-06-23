@@ -9,14 +9,15 @@ function printEmoji() {
             "opacity":o,
             "bottom":x,
             "left":y
-        }).appendTo("body");
+        }).appendTo(".fly");
     });
 }
 
 function comparer(index, type) {
     if (type == 'Name') {
         return function(a, b) {
-            var valA = getCellValue(a, index), valB = getCellValue(b, index)
+            var valA = getCellValue(a, index)
+            var valB = getCellValue(b, index)
             return valA.toString().localeCompare(valB)
         }
     } else if (type == 'Est. worth ($)') {
@@ -38,10 +39,37 @@ function getCellValue(row, index){
     return $(row).children('td').eq(index).text()
 }
 
+function splitURLS(){
+    var urls = document.querySelectorAll(".url")
+    function formatUrl(r){
+        return r.split("//").map(
+            r=>r.replace(/(?<after>:)/giu,"$1<wbr>"
+                ).replace(/(?<before>[/~.,\-_?#%])/giu,"<wbr>$1"
+                ).replace(/(?<equals>=)/giu,"<wbr>$1<wbr>"
+                ).replace(/(?<ampersand>&amp;)/giu,"<wbr>&<wbr>"
+            )).join("//<wbr>")
+    }
+    urls.forEach(r=>{
+        var e=formatUrl(r.innerHTML)
+        return r.innerHTML=`${e}`
+    })
+}
+
 $(document).on('click','.clicky',function(){
     var table = $(this).parents('table').eq(0)
     var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index(),$(this).text()))
     this.asc = !this.asc
     if (this.asc){rows = rows.reverse()}
     for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+})
+
+document.addEventListener('DOMContentLoaded', function() {
+    printEmoji();
+    splitURLS();
+}, false);
+
+$(document).on('click','.refs > a',function() {
+    var h=$(this).attr("href"),h=$(h)
+    $(".ref-highlight").removeClass("ref-highlight")
+    h.addClass("ref-highlight")
 })
